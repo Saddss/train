@@ -1,4 +1,4 @@
-package com.sss.train;
+package com.sss.train.member.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestController {
     @GetMapping("/hello")
     public String hello(){
-        return "hello world111122222";
+        return "hello world!";
     }
 }
