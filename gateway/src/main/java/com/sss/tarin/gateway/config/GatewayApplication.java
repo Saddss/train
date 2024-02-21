@@ -1,4 +1,4 @@
-package com.sss.train.member.config;
+package com.sss.tarin.gateway.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,14 +9,14 @@ import org.springframework.core.env.Environment;
 
 @SpringBootApplication
 @ComponentScan("com.sss")
-public class MemberApplication {
+public class GatewayApplication {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MemberApplication.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GatewayApplication.class);
     public static void main(String[] args) {
-        SpringApplication app = new SpringApplication(MemberApplication.class);
+        SpringApplication app = new SpringApplication(GatewayApplication.class);
         Environment env = app.run(args).getEnvironment();
         LOG.info("启动成功！");
-        LOG.info("会员地址:\thttp://127.0.0.1:{}{}/hello", env.getProperty("server.port"), env.getProperty("server.servlet.context-path"));
+        LOG.info("网关地址:\thttp://127.0.0.1:{}", env.getProperty("server.port"));
     }
 
 }
