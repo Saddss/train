@@ -1,14 +1,18 @@
 package com.sss.train.member.service;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjUtil;
 import com.sss.train.common.exception.BusinessException;
 import com.sss.train.common.exception.BusinessExceptionEnum;
 import com.sss.train.common.util.SnowUtil;
 import com.sss.train.member.domain.Member;
 import com.sss.train.member.domain.MemberExample;
 import com.sss.train.member.mapper.MemberMapper;
+import com.sss.train.member.req.MemberLoginReq;
 import com.sss.train.member.req.MemberRegisterReq;
 import com.sss.train.member.req.MemberSendCodeReq;
+import com.sss.train.member.resp.MemberLoginResp;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,10 +30,9 @@ public class MemberService {
 
     public long register(MemberRegisterReq req){
         String mobile = req.getMobile();
-        MemberExample memberExample = new MemberExample();
-        memberExample.createCriteria().andMobileEqualTo(mobile);
-        List<Member> members = memberMapper.selectByExample(memberExample);
-        if (CollUtil.isNotEmpty(members)){
+        Member memberDB = getMembers(mobile);
+
+        if (ObjUtil.isNotNull(memberDB)){
             throw new BusinessException(BusinessExceptionEnum.MEMBER_MOBILE_EXIST);
         }
         Member member = new Member();
@@ -41,12 +44,9 @@ public class MemberService {
 
     public void sendCode(MemberSendCodeReq req){
         String mobile = req.getMobile();
-        MemberExample memberExample = new MemberExample();
-        memberExample.createCriteria().andMobileEqualTo(mobile);
-        List<Member> members = memberMapper.selectByExample(memberExample);
+        Member memberDB = getMembers(mobile);
 
-        //手机号不存在则插入记录
-        if (CollUtil.isEmpty(members)){
+        if (ObjUtil.isNull(memberDB)){
             LOG.info("手机号不存在，插入记录");
             Member member = new Member();
             member.setId(SnowUtil.getSnowflakeNextId());
@@ -68,6 +68,33 @@ public class MemberService {
 
 
         //对接短信通道、发送短信
+    }
+    public MemberLoginResp login(MemberLoginReq req){
+        String mobile = req.getMobile();
+        Member memberDB = getMembers(mobile);
+
+        if (ObjUtil.isNull(memberDB)){
+            throw new BusinessException(BusinessExceptionEnum.MEMBER_MOBILE_NOT_EXIST);
+        }
+        //校验短信验证码
+        if (!"8888".equals(req.getCode())){
+            throw new BusinessException(BusinessExceptionEnum.MEMBER_MOBILE_CODE_ERROR);
+        }
+
+        return BeanUtil.copyProperties(memberDB, MemberLoginResp.class);
+    }
+
+    private Member getMembers(String mobile) {
+        MemberExample memberExample = new MemberExample();
+        memberExample.createCriteria().andMobileEqualTo(mobile);
+        List<Member> members = memberMapper.selectByExample(memberExample);
+        //手机号不存在则插入记录
+        if (CollUtil.isEmpty(members)){
+            return null;
+        } else {
+            return members.get(0);
+        }
+
     }
 
     public int count() {
