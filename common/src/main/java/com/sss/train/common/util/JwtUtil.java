@@ -18,7 +18,7 @@ public class JwtUtil {
     /**
      * 盐值很重要，不能泄漏，且每个项目都应该不一样，可以放到配置文件中
      */
-    private static final String key = "Jiawa12306";
+    private static final String key = "Saddss";
 
     public static String createToken(Long id, String mobile) {
         DateTime now = DateTime.now();
@@ -59,7 +59,7 @@ public class JwtUtil {
     public static void main(String[] args) {
         createToken(1L, "123");
 
-        String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYmYiOjE2NzY4OTk4MjcsIm1vYmlsZSI6IjEyMyIsImlkIjoxLCJleHAiOjE2NzY4OTk4MzcsImlhdCI6MTY3Njg5OTgyN30.JbFfdeNHhxKhAeag63kifw9pgYhnNXISJM5bL6hM8eU";
+        String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MTc2MDY2NjQxMjIwNjEzMzI0OCwibW9iaWxlIjoiMTMxNTMzMTQyNDcifQ.5cbHFrBqFHAKD7bDrtJZfuJBSuNd3HSu8ER2Y7o7ok4";
         validate(token);
 
         getJSONObject(token);

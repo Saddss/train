@@ -3,9 +3,9 @@ package com.sss.train.member.service;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
-import cn.hutool.jwt.JWTUtil;
 import com.sss.train.common.exception.BusinessException;
 import com.sss.train.common.exception.BusinessExceptionEnum;
+import com.sss.train.common.util.JwtUtil;
 import com.sss.train.common.util.SnowUtil;
 import com.sss.train.member.domain.Member;
 import com.sss.train.member.domain.MemberExample;
@@ -84,8 +84,7 @@ public class MemberService {
         }
         MemberLoginResp memberLoginResp = BeanUtil.copyProperties(memberDB, MemberLoginResp.class);
         Map<String, Object> map = BeanUtil.beanToMap(memberLoginResp);
-        String key = "Saddss";
-        String token = JWTUtil.createToken(map, key.getBytes());
+        String token = JwtUtil.createToken(memberLoginResp.getId(), memberLoginResp.getMobile());
         memberLoginResp.setToken(token);
         return memberLoginResp;
     }
