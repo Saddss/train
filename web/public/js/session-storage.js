@@ -1,4 +1,3 @@
-
 SessionStorage = {
     get: function (key) {
         var v = sessionStorage.getItem(key);
