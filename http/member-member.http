@@ -6,6 +6,12 @@ Content-Type: application/json
   "code": "8888"
 }
 
+> {%
+    client.log(JSON.stringify(response.body));
+    client.log(JSON.stringify(response.body.content.token));
+    client.global.set("token", response.body.content.token);
+%}
+
 ###
 GET http://localhost:8000/member/member/count
 Accept: application/json
@@ -25,4 +31,5 @@ Content-Type: application/json
 {
   "mobile": "15621481379"
 }
+
 
