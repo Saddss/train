@@ -1,4 +1,4 @@
-package com.jiawa.train.generator.test;
+package com.sss.train.generator.test;
 
 public class ${domain} {
 
