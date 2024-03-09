@@ -1,7 +1,8 @@
 <template>
   <p>
     <a-space>
-      <a-button type="primary" @click="handleQuery()">刷新</a-button>
+      <train-select-view v-model="params.trainCode" width="200px"></train-select-view>
+      <a-button type="primary" @click="handleQuery()">查找</a-button>
       <a-button type="primary" @click="onAdd">新增</a-button>
     </a-space>
   </p>
@@ -35,7 +36,7 @@
            ok-text="确认" cancel-text="取消">
     <a-form :model="trainCarriage" :label-col="{span: 4}" :wrapper-col="{ span: 20 }">
       <a-form-item label="车次编号">
-        <a-input v-model:value="trainCarriage.trainCode" />
+        <train-select-view v-model="trainCarriage.trainCode"></train-select-view>
       </a-form-item>
       <a-form-item label="厢号">
         <a-input v-model:value="trainCarriage.index" />
@@ -47,15 +48,15 @@
           </a-select-option>
         </a-select>
       </a-form-item>
-      <a-form-item label="座位数">
-        <a-input v-model:value="trainCarriage.seatCount" />
-      </a-form-item>
+      <!--<a-form-item label="座位数">-->
+      <!--  <a-input v-model:value="trainCarriage.seatCount" />-->
+      <!--</a-form-item>-->
       <a-form-item label="排数">
         <a-input v-model:value="trainCarriage.rowCount" />
       </a-form-item>
-      <a-form-item label="列数">
-        <a-input v-model:value="trainCarriage.colCount" />
-      </a-form-item>
+      <!--<a-form-item label="列数">-->
+      <!--  <a-input v-model:value="trainCarriage.colCount" />-->
+      <!--</a-form-item>-->
     </a-form>
   </a-modal>
 </template>
@@ -64,9 +65,11 @@
 import { defineComponent, ref, onMounted } from 'vue';
 import {notification} from "ant-design-vue";
 import axios from "axios";
+import TrainSelectView from "@/components/train-select";
 
 export default defineComponent({
   name: "train-carriage-view",
+  components: {TrainSelectView},
   setup() {
     const SEAT_TYPE_ARRAY = window.SEAT_TYPE_ARRAY;
     const visible = ref(false);
@@ -89,6 +92,9 @@ export default defineComponent({
       pageSize: 10,
     });
     let loading = ref(false);
+    let params = ref({
+      trainCode: null
+    });
     const columns = [
     {
       title: '车次编号',
@@ -178,7 +184,8 @@ export default defineComponent({
       axios.get("/business/admin/train-carriage/query-list", {
         params: {
           page: param.page,
-          size: param.size
+          size: param.size,
+          trainCode: params.value.trainCode
         }
       }).then((response) => {
         loading.value = false;
@@ -194,12 +201,11 @@ export default defineComponent({
       });
     };
 
-    const handleTableChange = (page) => {
-      // console.log("看看自带的分页参数都有啥：" + JSON.stringify(page));
-      pagination.value.pageSize = page.pageSize;
+    const handleTableChange = (pagination) => {
+      // console.log("看看自带的分页参数都有啥：" + pagination);
       handleQuery({
-        page: page.current,
-        size: page.pageSize
+        page: pagination.current,
+        size: pagination.pageSize
       });
     };
 
@@ -223,7 +229,8 @@ export default defineComponent({
       onAdd,
       handleOk,
       onEdit,
-      onDelete
+      onDelete,
+      params
     };
   },
 });
