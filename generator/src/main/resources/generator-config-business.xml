@@ -41,6 +41,6 @@
                              targetPackage="com.sss.train.business.mapper"
                              type="XMLMAPPER"/>
 
-        <table tableName="train_carriage" domainObjectName="TrainCarriage"/>
+        <table tableName="train_seat" domainObjectName="TrainSeat"/>
     </context>
 </generatorConfiguration>
