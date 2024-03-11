@@ -4,7 +4,7 @@ import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-
+//禁用并发执行
 @DisallowConcurrentExecution
 public class TestJob implements Job {
 
