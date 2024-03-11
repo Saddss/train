@@ -1,11 +1,14 @@
 <template>
   <p>
     <a-space>
+      <a-date-picker v-model:value="params.date" valueFormat="YYYY-MM-DD" placeholder="请选择日期" />
+      <train-select-view v-model="params.code" width="200px"></train-select-view>
       <a-button type="primary" @click="handleQuery()">刷新</a-button>
       <a-button type="primary" @click="onAdd">新增</a-button>
+      <a-button type="danger" @click="onClickGenDaily">手动生成车次信息</a-button>
     </a-space>
   </p>
-  <a-table :dataSource="trains"
+  <a-table :dataSource="dailyTrains"
            :columns="columns"
            :pagination="pagination"
            @change="handleTableChange"
@@ -31,36 +34,47 @@
       </template>
     </template>
   </a-table>
-  <a-modal v-model:visible="visible" title="车次" @ok="handleOk"
+  <a-modal v-model:visible="visible" title="每日车次" @ok="handleOk"
            ok-text="确认" cancel-text="取消">
-    <a-form :model="train" :label-col="{span: 4}" :wrapper-col="{ span: 20 }">
+    <a-form :model="dailyTrain" :label-col="{span: 4}" :wrapper-col="{ span: 20 }">
+      <a-form-item label="日期">
+        <a-date-picker v-model:value="dailyTrain.date" valueFormat="YYYY-MM-DD" placeholder="请选择日期" />
+      </a-form-item>
       <a-form-item label="车次编号">
-        <a-input v-model:value="train.code" />
+        <train-select-view v-model="dailyTrain.code" @change="onChangeCode"></train-select-view>
       </a-form-item>
       <a-form-item label="车次类型">
-        <a-select v-model:value="train.type">
+        <a-select v-model:value="dailyTrain.type">
           <a-select-option v-for="item in TRAIN_TYPE_ARRAY" :key="item.code" :value="item.code">
             {{item.desc}}
           </a-select-option>
         </a-select>
       </a-form-item>
       <a-form-item label="始发站">
-        <a-input v-model:value="train.start" />
+        <a-input v-model:value="dailyTrain.start" />
       </a-form-item>
       <a-form-item label="始发站拼音">
-        <a-input v-model:value="train.startPinyin" />
+        <a-input v-model:value="dailyTrain.startPinyin" />
       </a-form-item>
       <a-form-item label="出发时间">
-        <a-time-picker v-model:value="train.startTime" valueFormat="HH:mm:ss" placeholder="请选择时间" />
+        <a-time-picker v-model:value="dailyTrain.startTime" valueFormat="HH:mm:ss" placeholder="请选择时间" />
       </a-form-item>
       <a-form-item label="终点站">
-        <a-input v-model:value="train.end" />
+        <a-input v-model:value="dailyTrain.end" />
       </a-form-item>
       <a-form-item label="终点站拼音">
-        <a-input v-model:value="train.endPinyin" />
+        <a-input v-model:value="dailyTrain.endPinyin" />
       </a-form-item>
       <a-form-item label="到站时间">
-        <a-time-picker v-model:value="train.endTime" valueFormat="HH:mm:ss" placeholder="请选择时间" />
+        <a-time-picker v-model:value="dailyTrain.endTime" valueFormat="HH:mm:ss" placeholder="请选择时间" />
+      </a-form-item>
+    </a-form>
+  </a-modal>
+  <a-modal v-model:visible="genDailyVisible" title="生成车次" @ok="handleGenDailyOk"
+           :confirm-loading="genDailyLoading" ok-text="确认" cancel-text="取消">
+    <a-form :model="genDaily" :label-col="{span: 4}" :wrapper-col="{ span: 20 }">
+      <a-form-item label="日期">
+        <a-date-picker v-model:value="genDaily.date" placeholder="请选择日期"/>
       </a-form-item>
     </a-form>
   </a-modal>
@@ -70,14 +84,18 @@
 import { defineComponent, ref, onMounted } from 'vue';
 import {notification} from "ant-design-vue";
 import axios from "axios";
+import TrainSelectView from "@/components/train-select";
+import dayjs from 'dayjs';
 
 export default defineComponent({
-  name: "train-view",
+  name: "daily-train-view",
+  components: {TrainSelectView},
   setup() {
     const TRAIN_TYPE_ARRAY = window.TRAIN_TYPE_ARRAY;
     const visible = ref(false);
-    let train = ref({
+    let dailyTrain = ref({
       id: undefined,
+      date: undefined,
       code: undefined,
       type: undefined,
       start: undefined,
@@ -89,7 +107,7 @@ export default defineComponent({
       createTime: undefined,
       updateTime: undefined,
     });
-    const trains = ref([]);
+    const dailyTrains = ref([]);
     // 分页的三个属性名是固定的
     const pagination = ref({
       total: 0,
@@ -97,7 +115,20 @@ export default defineComponent({
       pageSize: 10,
     });
     let loading = ref(false);
+    let params = ref({
+      code: null
+    });
+    const genDaily = ref({
+      date: null
+    });
+    const genDailyVisible = ref(false);
+    const genDailyLoading = ref(false);
     const columns = [
+    {
+      title: '日期',
+      dataIndex: 'date',
+      key: 'date',
+    },
     {
       title: '车次编号',
       dataIndex: 'code',
@@ -145,17 +176,17 @@ export default defineComponent({
     ];
 
     const onAdd = () => {
-      train.value = {};
+      dailyTrain.value = {};
       visible.value = true;
     };
 
     const onEdit = (record) => {
-      train.value = window.Tool.copy(record);
+      dailyTrain.value = window.Tool.copy(record);
       visible.value = true;
     };
 
     const onDelete = (record) => {
-      axios.delete("/business/admin/train/delete/" + record.id).then((response) => {
+      axios.delete("/business/admin/daily-train/delete/" + record.id).then((response) => {
         const data = response.data;
         if (data.success) {
           notification.success({description: "删除成功！"});
@@ -170,7 +201,7 @@ export default defineComponent({
     };
 
     const handleOk = () => {
-      axios.post("/business/admin/train/save", train.value).then((response) => {
+      axios.post("/business/admin/daily-train/save", dailyTrain.value).then((response) => {
         let data = response.data;
         if (data.success) {
           notification.success({description: "保存成功！"});
@@ -193,16 +224,18 @@ export default defineComponent({
         };
       }
       loading.value = true;
-      axios.get("/business/admin/train/query-list", {
+      axios.get("/business/admin/daily-train/query-list", {
         params: {
           page: param.page,
-          size: param.size
+          size: param.size,
+          code: params.value.code,
+          date: params.value.date
         }
       }).then((response) => {
         loading.value = false;
         let data = response.data;
         if (data.success) {
-          trains.value = data.content.list;
+          dailyTrains.value = data.content.list;
           // 设置分页控件的值
           pagination.value.current = param.page;
           pagination.value.total = data.content.total;
@@ -212,12 +245,42 @@ export default defineComponent({
       });
     };
 
-    const handleTableChange = (page) => {
-      // console.log("看看自带的分页参数都有啥：" + JSON.stringify(page));
-      pagination.value.pageSize = page.pageSize;
+    const handleTableChange = (pagination) => {
+      // console.log("看看自带的分页参数都有啥：" + pagination);
       handleQuery({
-        page: page.current,
-        size: page.pageSize
+        page: pagination.current,
+        size: pagination.pageSize
+      });
+    };
+
+    const onChangeCode = (train) => {
+      console.log("车次下拉组件选择：", train);
+      let t = Tool.copy(train);
+      delete t.id;
+      // 用assign可以合并
+      dailyTrain.value = Object.assign(dailyTrain.value, t);
+    };
+
+    const onClickGenDaily = () => {
+      genDailyVisible.value = true;
+    };
+
+    const handleGenDailyOk = () => {
+      let date = dayjs(genDaily.value.date).format("YYYY-MM-DD");
+      genDailyLoading.value = true;
+      axios.get("/business/admin/daily-train/gen-daily/" + date).then((response) => {
+        genDailyLoading.value = false;
+        let data = response.data;
+        if (data.success) {
+          notification.success({description: "生成成功！"});
+          genDailyVisible.value = false;
+          handleQuery({
+            page: pagination.value.current,
+            size: pagination.value.pageSize
+          });
+        } else {
+          notification.error({description: data.message});
+        }
       });
     };
 
@@ -230,9 +293,9 @@ export default defineComponent({
 
     return {
       TRAIN_TYPE_ARRAY,
-      train,
+      dailyTrain,
       visible,
-      trains,
+      dailyTrains,
       pagination,
       columns,
       handleTableChange,
@@ -241,7 +304,14 @@ export default defineComponent({
       onAdd,
       handleOk,
       onEdit,
-      onDelete
+      onDelete,
+      onChangeCode,
+      params,
+      genDaily,
+      genDailyVisible,
+      handleGenDailyOk,
+      onClickGenDaily,
+      genDailyLoading
     };
   },
 });
