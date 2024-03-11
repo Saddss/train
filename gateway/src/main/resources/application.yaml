@@ -21,3 +21,7 @@ spring:
           predicates:
             - Path=/business/**
           uri: http://127.0.0.1:8002
+        - id: batch
+          predicates:
+            - Path=/batch/**
+          uri: http://127.0.0.1:8003
