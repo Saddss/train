@@ -33,7 +33,7 @@
       </template>
     </template>
   </a-table>
-  <a-modal v-model:visible="visible" title="每日车箱" @ok="handleOk"
+  <a-modal v-model:visible="visible" title="每日车厢" @ok="handleOk"
            ok-text="确认" cancel-text="取消">
     <a-form :model="dailyTrainCarriage" :label-col="{span: 4}" :wrapper-col="{ span: 20 }">
       <a-form-item label="日期">
