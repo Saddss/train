@@ -1,4 +1,4 @@
-GET http://localhost:8002/business/hello
+GET http://localhost:8003/batch/hello
 Accept: application/json
 
 

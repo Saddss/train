@@ -4,6 +4,8 @@ server:
     context-path: /member
 
 spring:
+  application:
+    name: member
   datasource:
     url: jdbc:mysql://43.138.26.5:3306/train_member?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&autoReconnect=true
     username: train_member
