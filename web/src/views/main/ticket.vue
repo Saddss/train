@@ -119,47 +119,47 @@ export default defineComponent({
     let loading = ref(false);
     const params = ref({});
     const columns = [
-    {
-      title: '车次编号',
-      dataIndex: 'trainCode',
-      key: 'trainCode',
-    },
-    {
-      title: '车站',
-      dataIndex: 'station',
-    },
-    {
-      title: '时间',
-      dataIndex: 'time',
-    },
-    {
-      title: '历时',
-      dataIndex: 'duration',
-    },
-    {
-      title: '一等座',
-      dataIndex: 'ydz',
-      key: 'ydz',
-    },
-    {
-      title: '二等座',
-      dataIndex: 'edz',
-      key: 'edz',
-    },
-    {
-      title: '软卧',
-      dataIndex: 'rw',
-      key: 'rw',
-    },
-    {
-      title: '硬卧',
-      dataIndex: 'yw',
-      key: 'yw',
-    },
-    {
-      title: '操作',
-      dataIndex: 'operation',
-    },
+      {
+        title: '车次编号',
+        dataIndex: 'trainCode',
+        key: 'trainCode',
+      },
+      {
+        title: '车站',
+        dataIndex: 'station',
+      },
+      {
+        title: '时间',
+        dataIndex: 'time',
+      },
+      {
+        title: '历时',
+        dataIndex: 'duration',
+      },
+      {
+        title: '一等座',
+        dataIndex: 'ydz',
+        key: 'ydz',
+      },
+      {
+        title: '二等座',
+        dataIndex: 'edz',
+        key: 'edz',
+      },
+      {
+        title: '软卧',
+        dataIndex: 'rw',
+        key: 'rw',
+      },
+      {
+        title: '硬卧',
+        dataIndex: 'yw',
+        key: 'yw',
+      },
+      {
+        title: '操作',
+        dataIndex: 'operation',
+      },
     ];
 
 
